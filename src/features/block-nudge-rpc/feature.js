@@ -10,7 +10,7 @@
 //
 // 稳定锚点:方法名 + 函数体结构(取 backendClient 再调用同名 RPC)。
 // 压缩后的局部变量名每版都会变,正则用 ID 和反向引用,不依赖具体名字。
-const { ID } = require("../engine/apply");
+const { ID } = require("../../engine/apply");
 
 module.exports = {
   id: "block-nudge-rpc",

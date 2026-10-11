@@ -3,7 +3,7 @@
 const { locate } = require("./engine/locate");
 const { isVerified, verifiedVersions } = require("./engine/gate");
 const { inspect } = require("./engine/source");
-const { patches } = require("./patches");
+const { features: patches } = require("./features");
 const { plan, selectPatches } = require("./engine/plan");
 const { applyAll, restoreAll } = require("./engine/commit");
 

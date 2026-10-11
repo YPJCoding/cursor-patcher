@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 "use strict";
-// 零依赖打包:把 src/ 下的 CommonJS 模块和 JSON 内联成单个可执行文件,
-// 并组装出可直接复制到 ~/.agents/skills/ 的技能目录。
-//   node scripts/build.js        产出 dist/cursor-patcher.js 和 dist/skill/
+// 零依赖打包:把 src/ 下的 CommonJS 模块和 JSON 内联成单个可执行文件。
+//   node scripts/build.js        产出 dist/cursor-patcher.js
 const fs = require("fs");
 const path = require("path");
 const { builtinModules } = require("module");
@@ -64,28 +63,14 @@ function bundle() {
   );
 }
 
-function copy(from, to) {
-  fs.mkdirSync(path.dirname(to), { recursive: true });
-  fs.copyFileSync(from, to);
-}
-
 function main() {
   fs.rmSync(dist, { recursive: true, force: true });
   const out = path.join(dist, "cursor-patcher.js");
   fs.mkdirSync(dist, { recursive: true });
   fs.writeFileSync(out, bundle(), { mode: 0o755 });
 
-  // 技能目录:SKILL.md + scripts/ + references/
-  const skill = path.join(dist, "skill");
-  copy(path.join(root, "skill", "SKILL.md"), path.join(skill, "SKILL.md"));
-  copy(out, path.join(skill, "scripts", "cursor-patcher.js"));
-  fs.chmodSync(path.join(skill, "scripts", "cursor-patcher.js"), 0o755);
-  copy(path.join(root, "docs", "patches", "block-nudge-rpc.md"), path.join(skill, "references", "block-nudge-rpc.md"));
-  copy(path.join(root, "docs", "upgrade.md"), path.join(skill, "references", "upgrade.md"));
-
   const kb = (fs.statSync(out).size / 1024).toFixed(1);
   console.log(`dist/cursor-patcher.js  ${kb} KB  (${modules.size} 个模块)`);
-  console.log(`dist/skill/             SKILL.md + scripts/ + references/`);
 }
 
 main();

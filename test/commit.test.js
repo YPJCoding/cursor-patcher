@@ -10,7 +10,7 @@ const { locate } = require("../src/engine/locate");
 const { applyAll, restoreAll } = require("../src/engine/commit");
 const { writeAll } = require("../src/engine/write");
 const { checksumOf } = require("../src/engine/checksums");
-const { patches } = require("../src/patches");
+const { features: patches } = require("../src/features");
 
 const SNIPPET = (n) =>
   `var x${n}=1;class S{async getNewChatNudgeParameterizedModelPicker(t,e,n){const i=await this.backendClient.get(t);` +

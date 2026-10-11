@@ -6,8 +6,8 @@
 ## 1. 先看状态
 
 ```bash
-node scripts/cursor-patcher.js status
-node scripts/cursor-patcher.js check
+node src/cli.js status
+node src/cli.js check
 ```
 
 - 升级会覆盖被改过的文件,`status` 会显示"原版"。
@@ -37,14 +37,14 @@ node scripts/cursor-patcher.js check
    `agentClientService` 的封装实现、各调用方。要改的是**封装实现**。
 3. 如果方法改了名,按"客户端向服务器请求新对话推荐"的语义找到新名字;
    如果封装消失、调用方直接请求,就要在每个调用方里处理。
-4. 修改 `src/patches/block-nudge-rpc.js` 的正则,同步 `docs/patches/block-nudge-rpc.md`,
+4. 修改 `src/features/<id>/feature.js` 的正则,同步 `src/features/<id>/feature.md`,
    在 `test/` 里加一个取自新版本的代码片段,保证旧片段的测试仍然通过。
 5. `npm test`,再 `check`,确认两个文件各命中 1 次。
 
 ## 4. 验证并登记
 
 1. 完全退出 Cursor(`pgrep -lx Cursor` 应无输出)。
-2. `node scripts/cursor-patcher.js apply --force`。
+2. `node src/cli.js apply --force`。
 3. 重新启动,新建对话,确认不再出现 *Model reset to Auto*。
 4. 检查日志里没有 `SyntaxError|Unexpected token|corrupt|TypeError|ReferenceError`。
 5. 全部正常后,把版本号加入 `src/verified-versions.json`,重新 `node scripts/build.js`。
@@ -52,7 +52,7 @@ node scripts/cursor-patcher.js check
 ## 5. 出问题时
 
 ```bash
-node scripts/cursor-patcher.js restore
+node src/cli.js restore
 ```
 
 还原需要与当前版本一致的备份。没有就重新安装 Cursor。

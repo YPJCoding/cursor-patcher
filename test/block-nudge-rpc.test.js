@@ -2,7 +2,7 @@
 const test = require("node:test");
 const assert = require("node:assert");
 const { applyPatches, syntaxCheck } = require("../src/engine/apply");
-const patch = require("../src/patches/block-nudge-rpc");
+const patch = require("../src/features/block-nudge-rpc/feature");
 
 // 取自 Cursor 3.24.12 的结构(变量名每版不同,这里用两组不同的名字)
 const A =
