@@ -55,7 +55,7 @@ function cmdStatus() {
 function cmdList() {
   if (patches.length === 0) return console.log("(暂无补丁)");
   for (const p of patches) {
-    console.log(`${p.id.padEnd(22)} [${p.group}]  ${p.files.join("+")}  已验证: ${p.verified.versions.join(", ") || "无"}`);
+    console.log(`${p.id.padEnd(22)} [${p.group}]  ${p.files.join("+")}${p.draft ? "  (草稿)" : ""}  已验证: ${p.verified.versions.join(", ") || "无"}`);
   }
 }
 

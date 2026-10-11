@@ -11,7 +11,8 @@ const { applyPatches, syntaxCheck } = require("./apply");
 
 function selectPatches(all, { only, except } = {}) {
   const match = (p, key) => p.id === key || p.group === key;
-  let list = all;
+  // 草稿功能(draft: true)不参与默认选择,只在 --only 明确点名时才生效
+  let list = only?.length ? all : all.filter((p) => !p.draft);
   if (only?.length) list = list.filter((p) => only.some((k) => match(p, k)));
   if (except?.length) list = list.filter((p) => !except.some((k) => match(p, k)));
   const known = new Set(all.flatMap((p) => [p.id, p.group]));

@@ -16,6 +16,7 @@ function validate(feature, dirName) {
     Array.isArray(feature.files) && feature.files.length > 0 && feature.files.every((f) => TARGETS.includes(f)),
     `files 必须是 ${TARGETS.join("/")} 的非空数组`
   );
+  must(feature.draft === undefined || typeof feature.draft === "boolean", "draft 必须是布尔值");
   const v = feature.verified;
   must(v && Array.isArray(v.versions), "缺少 verified.json 或其中没有 versions 数组");
   return feature;

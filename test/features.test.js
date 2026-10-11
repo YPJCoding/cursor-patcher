@@ -41,7 +41,7 @@ test("validate rejects malformed features", () => {
   assert.throws(() => validate({ ...ok, apply: undefined }, "a"), /apply/);
 });
 
-for (const f of features) {
+for (const f of features.filter((x) => !x.draft)) {
   const fixtureRoot = path.join(FEATURES_DIR, f.id, "fixtures");
   const versions = fs.existsSync(fixtureRoot) ? fs.readdirSync(fixtureRoot) : [];
 
