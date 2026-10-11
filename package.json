@@ -8,6 +8,7 @@
   "engines": { "node": ">=18" },
   "scripts": {
     "status": "node src/cli.js status",
-    "test": "node --test test/"
+    "test": "node --test test/",
+    "build": "node scripts/build.js"
   }
 }
