@@ -39,7 +39,7 @@ test("apply then restore is byte-identical, product.json only changes the checks
   const loc = locate(t.app);
   const before = [sha(t.glass), sha(t.desktop)];
 
-  applyAll(loc, patches, opts);
+  applyAll(loc, patches, patches, opts);
   assert.match(fs.readFileSync(t.glass, "utf8"), /^\/\*cursor-patcher:v=1\.2\.3;ids=block-nudge-rpc\*\//);
   const product = JSON.parse(fs.readFileSync(t.productPath, "utf8"));
   assert.equal(product.checksums[t.key], checksumOf(t.desktop));
@@ -55,9 +55,9 @@ test("apply then restore is byte-identical, product.json only changes the checks
 test("re-applying starts from the backup, not from the patched file", () => {
   const t = fakeApp();
   const loc = locate(t.app);
-  applyAll(loc, patches, opts);
+  applyAll(loc, patches, patches, opts);
   const once = sha(t.glass);
-  applyAll(loc, patches, opts);
+  applyAll(loc, patches, patches, opts);
   assert.equal(sha(t.glass), once);
 });
 
@@ -66,21 +66,21 @@ test("a patch mismatch writes nothing", () => {
   fs.writeFileSync(t.desktop, "var nothing=1;\n");
   const loc = locate(t.app);
   const before = [sha(t.glass), sha(t.desktop), fs.readFileSync(t.productPath, "utf8")];
-  assert.throws(() => applyAll(loc, patches, opts), /命中 0 次/);
+  assert.throws(() => applyAll(loc, patches, patches, opts), /命中 0 次/);
   assert.deepEqual([sha(t.glass), sha(t.desktop), fs.readFileSync(t.productPath, "utf8")], before);
   assert.equal(fs.existsSync(t.glass + ".cursor-patcher.bak"), false);
 });
 
 test("refuses an unverified version without --force", () => {
   const t = fakeApp();
-  assert.throws(() => applyAll(locate(t.app), patches, { skipProcessCheck: true }), /未验证|不在已验证/);
+  assert.throws(() => applyAll(locate(t.app), patches, patches, { skipProcessCheck: true }), /未验证|不在已验证/);
 });
 
 test("refuses to use a backup from another version", () => {
   const t = fakeApp();
-  applyAll(locate(t.app), patches, opts);
+  applyAll(locate(t.app), patches, patches, opts);
   fs.writeFileSync(t.productPath, fs.readFileSync(t.productPath, "utf8").replace("1.2.3", "9.9.9"));
-  assert.throws(() => applyAll(locate(t.app), patches, opts), /没有与当前版本/);
+  assert.throws(() => applyAll(locate(t.app), patches, patches, opts), /没有与当前版本/);
   assert.throws(() => restoreAll(locate(t.app), { skipProcessCheck: true }), /没有与当前版本/);
 });
 

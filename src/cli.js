@@ -10,8 +10,8 @@ try {
   console.error(`错误: 功能定义无效 - ${e.message}`);
   process.exit(1);
 }
-const { plan, selectPatches } = require("./engine/plan");
-const { applyAll, restoreAll } = require("./engine/commit");
+const { plan, selectPatches, resolveTargets } = require("./engine/plan");
+const { applyAll, removeFeatures, restoreAll } = require("./engine/commit");
 
 const HELP = `cursor-patcher
 
@@ -20,7 +20,8 @@ const HELP = `cursor-patcher
 命令:
   status   显示 Cursor 版本、是否已验证、各目标文件的修改状态(只读)
   list     列出可用补丁
-  apply    应用补丁(需先退出 Cursor;未验证版本需 --force)
+  apply    应用功能,在文件已有功能的基础上增量添加(需先退出 Cursor;未验证版本需 --force)
+  remove   移除指定功能: remove <id,...>,其余功能保留;全部移除等同还原
   restore  还原为官方原版
   check    演练:在临时内存里应用补丁并做语法检查,不写 app
            选项: --only <id|组,...>  --except <id|组,...>
@@ -70,7 +71,7 @@ function cmdCheck(argv) {
     except: parseList(argv, "--except"),
   });
   console.log(`Cursor ${loc.version}  补丁: ${list.map((p) => p.id).join(", ") || "无"}\n`);
-  const results = plan(loc, list);
+  const results = plan(loc, resolveTargets(loc, patches, list));
   let bad = 0;
   for (const r of results) {
     if (r.skipped) {
@@ -103,14 +104,24 @@ function cmdApply(argv) {
     only: parseList(argv, "--only"),
     except: parseList(argv, "--except"),
   });
-  const r = applyAll(loc, list, { force: argv.includes("--force"), skipProcessCheck: skipProcessCheck() });
+  const r = applyAll(loc, patches, list, { force: argv.includes("--force"), skipProcessCheck: skipProcessCheck() });
   if (r.forced) console.log("注意: 当前版本未验证,已按 --force 继续。");
   for (const x of r.results) {
     if (x.skipped) continue;
-    console.log(`${x.name.padEnd(8)} 已写入  ${x.report.map((p) => `${p.id}×${p.hits}`).join(", ")}`);
+    console.log(`${x.name.padEnd(8)} 已写入  现有功能: ${x.features.join(", ")}`);
   }
   console.log(`checksums 已更新: ${r.checksumsChanged.join(", ") || "无变化"}`);
   console.log("完成。重新启动 Cursor 后新建对话验证。");
+}
+
+function cmdRemove(argv) {
+  const ids = (argv[0] ?? "").split(",").filter(Boolean);
+  const r = removeFeatures(locate(), patches, ids, { skipProcessCheck: skipProcessCheck() });
+  for (const x of r.results) {
+    if (x.skipped) continue;
+    console.log(`${x.name.padEnd(8)} ${x.restore ? "已还原为原版" : `保留: ${x.features.join(", ")}`}`);
+  }
+  console.log(`checksums 已更新: ${r.checksumsChanged.join(", ") || "无变化"}`);
 }
 
 function cmdRestore() {
@@ -127,6 +138,7 @@ function main(argv) {
       case "list": return cmdList();
       case "check": return cmdCheck(argv.slice(1));
       case "apply": return cmdApply(argv.slice(1));
+      case "remove": return cmdRemove(argv.slice(1));
       case "restore": return cmdRestore();
       case undefined:
       case "-h":
