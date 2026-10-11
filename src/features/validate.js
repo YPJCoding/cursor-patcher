@@ -10,6 +10,7 @@ function validate(feature, dirName) {
   must(feature && typeof feature === "object", "feature.js 必须导出对象");
   must(feature.id === dirName, `id(${feature.id})必须等于目录名(${dirName})`);
   must(typeof feature.group === "string" && feature.group, "缺少 group");
+  must(typeof feature.summary === "string" && feature.summary && !feature.summary.includes("\n"), "缺少单行的 summary");
   must(typeof feature.intent === "string" && feature.intent, "缺少 intent");
   must(typeof feature.apply === "function", "缺少 apply(src, h)");
   must(

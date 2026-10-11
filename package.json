@@ -11,6 +11,7 @@
     "test": "node --test test/",
     "build": "node scripts/build.js",
     "new:feature": "node scripts/new-feature.js",
-    "fixture": "node scripts/extract-fixture.js"
+    "fixture": "node scripts/extract-fixture.js",
+    "docs": "node scripts/update-readme.js"
   }
 }

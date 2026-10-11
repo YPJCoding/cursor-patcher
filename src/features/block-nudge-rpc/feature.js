@@ -15,6 +15,7 @@ const { ID } = require("../../engine/apply");
 module.exports = {
   id: "block-nudge-rpc",
   group: "nudge",
+  summary: "新对话不再请求服务器的模型推荐,避免被团队策略重置为 Auto",
   files: ["glass", "desktop"],
   intent:
     "新对话的 nudge RPC 封装方法开头插入 return{};,调用方拿到空的 nudge 后按原有分支直接返回," +

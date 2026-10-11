@@ -7,6 +7,7 @@ const { ID } = require("../../engine/apply");
 module.exports = {
   id: "{{id}}",
   group: "{{group}}",
+  summary: "TODO: 一句话(单行)说明这个功能做什么,会出现在 README 的功能表里",
   draft: true, // 草稿不会参与默认的 check / apply,只在 --only {{id}} 时生效。完成后删除这一行。
   files: [{{files}}],
   intent: "TODO: 用一两句话写清要改什么、为什么这样改、锚点是什么(给将来的自己和智能体看)。",

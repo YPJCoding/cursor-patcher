@@ -32,13 +32,15 @@ test("every feature has its documentation", () => {
 });
 
 test("validate rejects malformed features", () => {
-  const ok = { id: "a", group: "g", intent: "i", files: ["glass"], apply() {}, verified: { versions: [] } };
+  const ok = { id: "a", group: "g", summary: "s", intent: "i", files: ["glass"], apply() {}, verified: { versions: [] } };
   assert.doesNotThrow(() => validate(ok, "a"));
   assert.throws(() => validate({ ...ok, id: "b" }, "a"), /必须等于目录名/);
   assert.throws(() => validate({ ...ok, files: ["nope"] }, "a"), /files/);
   assert.throws(() => validate({ ...ok, files: [] }, "a"), /files/);
   assert.throws(() => validate({ ...ok, verified: undefined }, "a"), /verified/);
   assert.throws(() => validate({ ...ok, apply: undefined }, "a"), /apply/);
+  assert.throws(() => validate({ ...ok, summary: undefined }, "a"), /summary/);
+  assert.throws(() => validate({ ...ok, summary: "a\nb" }, "a"), /summary/);
 });
 
 for (const f of features.filter((x) => !x.draft)) {
