@@ -1,7 +1,7 @@
 "use strict";
 // 演练:对每个目标文件从"原版"出发应用补丁并做语法检查,全程不写 app。
 const fs = require("fs");
-const { inspect, resolveOriginal, makeMark } = require("./source");
+const { inspect, resolveOriginal, makeMark, MARK_RE } = require("./source");
 const { applyPatches, syntaxCheck } = require("./apply");
 
 function selectPatches(all, { only, except } = {}) {
@@ -33,8 +33,10 @@ function plan(loc, patchList) {
       continue;
     }
     res.original = orig;
+    res.info = inspect(file);
     try {
-      const src = fs.readFileSync(orig.path, "utf8");
+      // 备份文件开头带版本戳,还原成原版内容时要去掉
+      const src = fs.readFileSync(orig.path, "utf8").replace(MARK_RE, "");
       const { out, report } = applyPatches(src, mine, name);
       res.report = report;
       res.patched = makeMark(loc.version, mine.map((p) => p.id)) + out;
