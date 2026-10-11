@@ -1,0 +1,13 @@
+{
+  "name": "cursor-patcher",
+  "version": "0.1.0",
+  "description": "Declarative local patches for the Cursor desktop app",
+  "private": true,
+  "type": "commonjs",
+  "bin": { "cursor-patcher": "src/cli.js" },
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "status": "node src/cli.js status",
+    "test": "node --test test/"
+  }
+}
