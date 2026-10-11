@@ -50,4 +50,8 @@ function resolveOriginal(info, currentVersion) {
   };
 }
 
-module.exports = { inspect, resolveOriginal, parseMark, BAK_SUFFIX, MARK_RE };
+function makeMark(version, ids) {
+  return `/*cursor-patcher:v=${version};ids=${ids.join(",")}*/`;
+}
+
+module.exports = { makeMark, inspect, resolveOriginal, parseMark, BAK_SUFFIX, MARK_RE };

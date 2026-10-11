@@ -4,6 +4,7 @@ const { locate } = require("./engine/locate");
 const { isVerified, verifiedVersions } = require("./engine/gate");
 const { inspect } = require("./engine/source");
 const { patches } = require("./patches");
+const { plan, selectPatches } = require("./engine/plan");
 
 const HELP = `cursor-patcher
 
@@ -12,6 +13,8 @@ const HELP = `cursor-patcher
 命令:
   status   显示 Cursor 版本、是否已验证、各目标文件的修改状态(只读)
   list     列出可用补丁
+  check    演练:在临时内存里应用补丁并做语法检查,不写 app
+           选项: --only <id|组,...>  --except <id|组,...>
 
 环境变量:
   CURSOR_APP   Cursor.app 路径(默认 /Applications/Cursor.app)
@@ -45,12 +48,49 @@ function cmdList() {
   }
 }
 
+function parseList(argv, flag) {
+  const i = argv.indexOf(flag);
+  return i >= 0 && argv[i + 1] ? argv[i + 1].split(",").filter(Boolean) : undefined;
+}
+
+function cmdCheck(argv) {
+  const loc = locate();
+  const list = selectPatches(patches, {
+    only: parseList(argv, "--only"),
+    except: parseList(argv, "--except"),
+  });
+  console.log(`Cursor ${loc.version}  补丁: ${list.map((p) => p.id).join(", ") || "无"}\n`);
+  const results = plan(loc, list);
+  let bad = 0;
+  for (const r of results) {
+    if (r.skipped) {
+      console.log(`${r.name.padEnd(8)} 跳过(没有适用的补丁)`);
+      continue;
+    }
+    if (r.error) {
+      bad++;
+      console.log(`${r.name.padEnd(8)} 失败  ${r.error}`);
+      continue;
+    }
+    console.log(`${r.name.padEnd(8)} 通过  原版来源=${r.original.kind}  语法检查=通过`);
+    for (const rep of r.report) {
+      console.log(`  - ${rep.id}: 命中 ${rep.hits} 次`);
+      for (const a of rep.audit) {
+        console.log(`      位置 ${a.at}\n      前: ...${a.before}...\n      后: ...${a.after}...`);
+      }
+    }
+  }
+  console.log(bad ? `\n演练失败(${bad} 个文件),未写入任何内容。` : "\n演练通过,未写入任何内容。");
+  if (bad) process.exitCode = 1;
+}
+
 function main(argv) {
   const cmd = argv[0];
   try {
     switch (cmd) {
       case "status": return cmdStatus();
       case "list": return cmdList();
+      case "check": return cmdCheck(argv.slice(1));
       case undefined:
       case "-h":
       case "--help": return console.log(HELP);
