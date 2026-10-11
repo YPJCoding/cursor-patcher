@@ -1,21 +1,23 @@
 "use strict";
-// 版本闸门:只在已验证的 Cursor 版本上应用补丁。
-const verified = require("../verified-versions.json");
+// 版本闸门:每个功能各自记录已验证的 Cursor 版本(features/<id>/verified.json)。
+// 应用时只拒绝"当前版本对它还没验证过"的功能。
 
-function isVerified(version) {
-  return verified.versions.includes(version);
+function isVerified(feature, version) {
+  return (feature.verified?.versions ?? []).includes(version);
 }
 
-function checkGate(version, { force = false } = {}) {
-  if (isVerified(version)) return { ok: true, forced: false };
-  if (force) return { ok: true, forced: true };
+function checkGate(version, featureList, { force = false } = {}) {
+  const unverified = featureList.filter((f) => !isVerified(f, version)).map((f) => f.id);
+  if (unverified.length === 0) return { ok: true, forced: false, unverified };
+  if (force) return { ok: true, forced: true, unverified };
   return {
     ok: false,
+    unverified,
     message:
-      `Cursor ${version} 不在已验证列表中。` +
-      `请先按 docs/upgrade.md 验证补丁锚点,再把版本加入 src/verified-versions.json;` +
+      `Cursor ${version} 对以下功能尚未验证: ${unverified.join(", ")}。\n` +
+      `请先按 docs/upgrade.md 验证锚点,再把版本加入对应的 src/features/<id>/verified.json;` +
       `或加 --force 强制继续。`,
   };
 }
 
-module.exports = { isVerified, checkGate, verifiedVersions: verified.versions };
+module.exports = { isVerified, checkGate };

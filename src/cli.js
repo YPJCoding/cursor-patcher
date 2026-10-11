@@ -1,9 +1,15 @@
 #!/usr/bin/env node
 "use strict";
 const { locate } = require("./engine/locate");
-const { isVerified, verifiedVersions } = require("./engine/gate");
+const { isVerified } = require("./engine/gate");
 const { inspect } = require("./engine/source");
-const { features: patches } = require("./features");
+let patches;
+try {
+  ({ features: patches } = require("./features"));
+} catch (e) {
+  console.error(`错误: 功能定义无效 - ${e.message}`);
+  process.exit(1);
+}
 const { plan, selectPatches } = require("./engine/plan");
 const { applyAll, restoreAll } = require("./engine/commit");
 
@@ -27,10 +33,11 @@ function cmdStatus() {
   const loc = locate();
   console.log(`Cursor     ${loc.version}  (${String(loc.commit).slice(0, 10)})`);
   console.log(`位置       ${loc.appPath}`);
-  console.log(
-    `版本闸门   ${isVerified(loc.version) ? "已验证" : "未验证"}` +
-      `  (已验证: ${verifiedVersions.join(", ") || "无"})`
-  );
+  console.log("功能");
+  for (const f of patches) {
+    const ok = isVerified(f, loc.version);
+    console.log(`  ${f.id.padEnd(22)} ${ok ? "已验证" : "未验证"}  (已验证版本: ${f.verified.versions.join(", ") || "无"})`);
+  }
   console.log("");
   for (const [name, file] of Object.entries(loc.files)) {
     const i = inspect(file);
@@ -47,7 +54,7 @@ function cmdStatus() {
 function cmdList() {
   if (patches.length === 0) return console.log("(暂无补丁)");
   for (const p of patches) {
-    console.log(`${p.id.padEnd(20)} [${p.group}]  ${p.files.join("+")}`);
+    console.log(`${p.id.padEnd(22)} [${p.group}]  ${p.files.join("+")}  已验证: ${p.verified.versions.join(", ") || "无"}`);
   }
 }
 

@@ -24,7 +24,7 @@ function ensureQuit(loc, { skip }) {
 
 function applyAll(loc, patchList, { force = false, skipProcessCheck = false } = {}) {
   if (patchList.length === 0) throw new Error("没有选中任何补丁");
-  const gate = checkGate(loc.version, { force });
+  const gate = checkGate(loc.version, patchList, { force });
   if (!gate.ok) throw new Error(gate.message);
   ensureQuit(loc, { skip: skipProcessCheck });
 

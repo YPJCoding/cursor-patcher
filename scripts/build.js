@@ -22,6 +22,29 @@ function resolveFile(from, req) {
   throw new Error(`无法解析 require("${req}") (来自 ${from})`);
 }
 
+// 单文件产物里没有文件系统可扫,所以把 features/index.js 的自动发现换成等价的静态列表。
+const FEATURES_INDEX = path.join(src, "features", "index.js");
+function featureRegistryCode() {
+  const dir = path.join(src, "features");
+  const names = fs
+    .readdirSync(dir, { withFileTypes: true })
+    .filter((d) => d.isDirectory() && fs.existsSync(path.join(dir, d.name, "feature.js")))
+    .map((d) => d.name)
+    .sort();
+  const validateId = collect(path.join(dir, "validate.js"));
+  const rows = names.map((n) => {
+    const f = collect(path.join(dir, n, "feature.js"));
+    const vFile = path.join(dir, n, "verified.json");
+    const v = fs.existsSync(vFile) ? `__req(${collect(vFile)})` : "undefined";
+    return `[${JSON.stringify(n)}, __req(${f}), ${v}]`;
+  });
+  return (
+    `const validate = __req(${validateId}).validate;\n` +
+    `const rows = [${rows.join(", ")}];\n` +
+    `module.exports = { features: rows.map(([n, f, v]) => validate({ ...f, verified: v }, n)) };`
+  );
+}
+
 function collect(file) {
   if (modules.has(file)) return modules.get(file).id;
   const id = modules.size;
@@ -29,6 +52,10 @@ function collect(file) {
   modules.set(file, entry);
   if (file.endsWith(".json")) {
     entry.json = fs.readFileSync(file, "utf8");
+    return id;
+  }
+  if (file === FEATURES_INDEX) {
+    entry.code = featureRegistryCode();
     return id;
   }
   let code = fs.readFileSync(file, "utf8").replace(/^#!.*\n/, "");
