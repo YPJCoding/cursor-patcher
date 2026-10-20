@@ -10,7 +10,8 @@ const { locate } = require("../src/engine/locate");
 const { applyAll, restoreAll } = require("../src/engine/commit");
 const { writeAll } = require("../src/engine/write");
 const { checksumOf } = require("../src/engine/checksums");
-const { features: patches } = require("../src/features");
+const { features: allFeatures } = require("../src/features");
+const patches = allFeatures.filter((f) => f.id === "block-nudge-rpc");
 
 const SNIPPET = (n) =>
   `var x${n}=1;class S{async getNewChatNudgeParameterizedModelPicker(t,e,n){const i=await this.backendClient.get(t);` +

@@ -8,7 +8,8 @@
 <!-- features:start -->
 | 功能 | 组 | 目标文件 | 已验证的 Cursor 版本 | 说明 |
 |---|---|---|---|---|
-| [block-nudge-rpc](src/features/block-nudge-rpc/feature.md) | nudge | glass + desktop | 3.24.12 | 新对话不再请求服务器的模型推荐,避免被团队策略重置为 Auto |
+| [block-nudge-rpc](src/features/block-nudge-rpc/feature.md) | nudge | glass + desktop | 3.24.12, 3.25.9 | 新对话不再请求服务器的模型推荐,避免被团队策略重置为 Auto |
+| [show-usage-limit](src/features/show-usage-limit/feature.md) | usage | glass + desktop | 3.25.9 | 针对企业账号激活 Cursor 原生底部额度圆环与点击进度条卡片（零样式改动） |
 <!-- features:end -->
 
 功能表由 `npm run docs` 根据代码自动生成,不要手工编辑。每个功能的原理、锚点和失效情形见各自的 `feature.md`。
