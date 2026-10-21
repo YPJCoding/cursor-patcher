@@ -1,0 +1,1 @@
+class S{async getNewChatNudgeParameterizedModelPicker(e,t,n){const i=await this.backendClient.get(e);return k$e(i,{injectTraceHeaders:!0}).getNewChatNudgeParameterizedModelPicker(e,new FEo({currentModel:t,modelNudgesEnabled:n?.modelNudgesEnabled}))}}
